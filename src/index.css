@@ -1607,6 +1607,15 @@ select {
     margin-top: 16px;
   }
 
+  /* The sidebar becomes a top bar on mobile, so popovers must open downward
+     instead of upward — otherwise they fly off the top edge of the screen. */
+  .settings-popover {
+    top: calc(100% + 8px);
+    bottom: auto;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+
   .modal-overlay {
     padding: 16px;
     padding-left: 16px;
