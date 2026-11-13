@@ -424,7 +424,10 @@ export default function App() {
 function useDialog(onClose, initialFocusRef) {
   const ref = useRef(null)
   const closeRef = useRef(onClose)
-  closeRef.current = onClose
+
+  useEffect(() => {
+    closeRef.current = onClose
+  }, [onClose])
 
   useEffect(() => {
     const node = ref.current
@@ -620,7 +623,11 @@ function Login() {
           {mode === 'signup' && (
             <>
               Already have an account?{' '}
-              <button type="button" className="btn-link-inline" onClick={() => switchMode('signin')}>
+              <button
+                type="button"
+                className="btn-link-inline"
+                onClick={() => switchMode('signin')}
+              >
                 Sign in
               </button>
             </>
@@ -628,7 +635,11 @@ function Login() {
           {mode === 'signin' && (
             <>
               No account yet?{' '}
-              <button type="button" className="btn-link-inline" onClick={() => switchMode('signup')}>
+              <button
+                type="button"
+                className="btn-link-inline"
+                onClick={() => switchMode('signup')}
+              >
                 Sign up
               </button>
               {' · '}
@@ -640,7 +651,11 @@ function Login() {
           {mode === 'reset' && (
             <>
               Remembered it?{' '}
-              <button type="button" className="btn-link-inline" onClick={() => switchMode('signin')}>
+              <button
+                type="button"
+                className="btn-link-inline"
+                onClick={() => switchMode('signin')}
+              >
                 Back to sign in
               </button>
             </>
@@ -738,7 +753,15 @@ function ResetPassword({ onDone }) {
 
 /* ---------------- DASHBOARD ---------------- */
 
-function Dashboard({ state, setState, profile, onOpenAdmin, onChangeEmail, onLogout, onToggleTheme }) {
+function Dashboard({
+  state,
+  setState,
+  profile,
+  onOpenAdmin,
+  onChangeEmail,
+  onLogout,
+  onToggleTheme,
+}) {
   const [addListOpen, setAddListOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [openListId, setOpenListId] = useState(null)
@@ -821,7 +844,14 @@ function Dashboard({ state, setState, profile, onOpenAdmin, onChangeEmail, onLog
               ...list,
               tasks: [
                 ...list.tasks,
-                { id: makeId(), text: text.slice(0, MAX_TASK), done: false, due: null, priority: null, tags: [] },
+                {
+                  id: makeId(),
+                  text: text.slice(0, MAX_TASK),
+                  done: false,
+                  due: null,
+                  priority: null,
+                  tags: [],
+                },
               ],
             }
           : list
@@ -860,9 +890,7 @@ function Dashboard({ state, setState, profile, onOpenAdmin, onChangeEmail, onLog
         list.id === listId
           ? {
               ...list,
-              tasks: list.tasks.map((task) =>
-                task.id === taskId ? { ...task, ...patch } : task
-              ),
+              tasks: list.tasks.map((task) => (task.id === taskId ? { ...task, ...patch } : task)),
             }
           : list
       ),
@@ -921,12 +949,13 @@ function Dashboard({ state, setState, profile, onOpenAdmin, onChangeEmail, onLog
 
   /* ----- filters ----- */
 
-  const allTags = [...new Set(state.lists.flatMap((list) => list.tasks.flatMap((task) => task.tags)))].sort(
-    (a, b) => a.localeCompare(b)
-  )
+  const allTags = [
+    ...new Set(state.lists.flatMap((list) => list.tasks.flatMap((task) => task.tags))),
+  ].sort((a, b) => a.localeCompare(b))
   const activeTag = allTags.includes(tagFilter) ? tagFilter : 'any'
   const q = query.trim().toLowerCase()
-  const hasFilters = Boolean(q) || status !== 'all' || priorityFilter !== 'any' || activeTag !== 'any'
+  const hasFilters =
+    Boolean(q) || status !== 'all' || priorityFilter !== 'any' || activeTag !== 'any'
 
   const visibleLists = state.lists
     .map((list) => {
@@ -1019,7 +1048,9 @@ function Dashboard({ state, setState, profile, onOpenAdmin, onChangeEmail, onLog
       setState((s) => ({
         ...s,
         lists: s.lists.map((list) =>
-          list.id === fromListId ? { ...list, tasks: arrayMove(list.tasks, fromIndex, toIndex) } : list
+          list.id === fromListId
+            ? { ...list, tasks: arrayMove(list.tasks, fromIndex, toIndex) }
+            : list
         ),
       }))
       return
@@ -1166,7 +1197,6 @@ function Dashboard({ state, setState, profile, onOpenAdmin, onChangeEmail, onLog
       {detailsTask && (
         <TaskDetailsModal
           task={detailsTask}
-          listId={details.listId}
           onClose={() => setDetails(null)}
           onSave={(patch) => {
             updateTaskDetails(details.listId, details.taskId, patch)
@@ -1246,7 +1276,11 @@ function Toolbar({
           aria-label="Search tasks, tags or lists"
         />
         {query && (
-          <button className="search-clear" onClick={() => onQueryChange('')} aria-label="Clear search">
+          <button
+            className="search-clear"
+            onClick={() => onQueryChange('')}
+            aria-label="Clear search"
+          >
             <X size={14} strokeWidth={2.5} />
           </button>
         )}
@@ -1311,7 +1345,20 @@ function Toolbar({
 
 /* ---------------- SIDEBAR ---------------- */
 
-function Sidebar({ lists, user, theme, profile, onOpenAdmin, onChangeEmail, onToggleTheme, onLogout, open, onToggle, onOpenList, onReset }) {
+function Sidebar({
+  lists,
+  user,
+  theme,
+  profile,
+  onOpenAdmin,
+  onChangeEmail,
+  onToggleTheme,
+  onLogout,
+  open,
+  onToggle,
+  onOpenList,
+  onReset,
+}) {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
@@ -1653,7 +1700,15 @@ function TaskCard({
 
 /* ---------------- TASK ITEMS ---------------- */
 
-function TaskItems({ listId, tasks, sortable, onToggle, onUpdateTask, onDeleteTask, onOpenDetails }) {
+function TaskItems({
+  listId,
+  tasks,
+  sortable,
+  onToggle,
+  onUpdateTask,
+  onDeleteTask,
+  onOpenDetails,
+}) {
   if (tasks.length === 0) {
     return sortable ? (
       <EmptyDropArea listId={listId} />
@@ -1734,12 +1789,7 @@ function SortableTaskRow(props) {
     transition,
   }
 
-  return (
-    <TaskRow
-      {...props}
-      drag={{ attributes, listeners, setNodeRef, style, isDragging }}
-    />
-  )
+  return <TaskRow {...props} drag={{ attributes, listeners, setNodeRef, style, isDragging }} />
 }
 
 function TaskRow({ task, listId, onToggle, onUpdateTask, onDeleteTask, onOpenDetails, drag }) {
@@ -1804,12 +1854,7 @@ function TaskRow({ task, listId, onToggle, onUpdateTask, onDeleteTask, onOpenDet
             aria-label="Task text"
           />
         ) : (
-          <button
-            type="button"
-            className="task-text"
-            onClick={startEditing}
-            title="Click to edit"
-          >
+          <button type="button" className="task-text" onClick={startEditing} title="Click to edit">
             {task.text}
           </button>
         )}
@@ -1942,7 +1987,10 @@ function AddListModal({ onClose, onSave }) {
   }
 
   return (
-    <div className="modal-overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+    <div
+      className="modal-overlay"
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+    >
       <div
         className="modal-card add-list-modal"
         role="dialog"
@@ -2035,7 +2083,15 @@ function AddListModal({ onClose, onSave }) {
 
 /* ---------------- LIST MODAL ---------------- */
 
-function ListModal({ list, onClose, onToggle, onAddTask, onUpdateTask, onDeleteTask, onOpenDetails }) {
+function ListModal({
+  list,
+  onClose,
+  onToggle,
+  onAddTask,
+  onUpdateTask,
+  onDeleteTask,
+  onOpenDetails,
+}) {
   const [newTask, setNewTask] = useState('')
   const dialogRef = useDialog(onClose)
   const Icon = iconMap[list.icon] ?? ListTodo
@@ -2052,7 +2108,10 @@ function ListModal({ list, onClose, onToggle, onAddTask, onUpdateTask, onDeleteT
   }
 
   return (
-    <div className="modal-overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+    <div
+      className="modal-overlay"
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+    >
       <div
         className="modal-card list-modal-card"
         role="dialog"
@@ -2102,7 +2161,7 @@ function ListModal({ list, onClose, onToggle, onAddTask, onUpdateTask, onDeleteT
 
 /* ---------------- TASK DETAILS MODAL ---------------- */
 
-function TaskDetailsModal({ task, listId, onClose, onSave }) {
+function TaskDetailsModal({ task, onClose, onSave }) {
   const [text, setText] = useState(task.text)
   const [due, setDue] = useState(task.due ?? '')
   const [priority, setPriority] = useState(task.priority ?? 'none')
@@ -2124,7 +2183,10 @@ function TaskDetailsModal({ task, listId, onClose, onSave }) {
   }
 
   return (
-    <div className="modal-overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+    <div
+      className="modal-overlay"
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+    >
       <div
         className="modal-card task-details-card"
         role="dialog"
@@ -2269,7 +2331,10 @@ function ChangeEmailModal({ currentEmail, onClose }) {
   }
 
   return (
-    <div className="modal-overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+    <div
+      className="modal-overlay"
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+    >
       <div
         className="modal-card confirm-card"
         role="dialog"
@@ -2330,7 +2395,10 @@ function ConfirmDialog({ title, message, confirmLabel, onConfirm, onCancel }) {
   const dialogRef = useDialog(onCancel)
 
   return (
-    <div className="modal-overlay" onMouseDown={(event) => event.target === event.currentTarget && onCancel()}>
+    <div
+      className="modal-overlay"
+      onMouseDown={(event) => event.target === event.currentTarget && onCancel()}
+    >
       <div
         className="modal-card confirm-card"
         role="alertdialog"

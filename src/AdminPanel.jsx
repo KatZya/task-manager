@@ -65,10 +65,7 @@ export default function AdminPanel({ currentUserId, onClose }) {
   const updateUser = async (user, patch) => {
     setBusyId(user.id)
     setError('')
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update(patch)
-      .eq('id', user.id)
+    const { error: updateError } = await supabase.from('profiles').update(patch).eq('id', user.id)
     if (updateError) setError(updateError.message)
     else await load()
     setBusyId(null)
@@ -78,7 +75,10 @@ export default function AdminPanel({ currentUserId, onClose }) {
     new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
   return (
-    <div className="modal-overlay" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+    <div
+      className="modal-overlay"
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+    >
       <div
         className="modal-card admin-card"
         role="dialog"
@@ -138,7 +138,9 @@ export default function AdminPanel({ currentUserId, onClose }) {
                         </span>
                       </td>
                       <td>
-                        <span className={`admin-badge ${user.is_blocked ? 'admin-badge-blocked' : 'admin-badge-active'}`}>
+                        <span
+                          className={`admin-badge ${user.is_blocked ? 'admin-badge-blocked' : 'admin-badge-active'}`}
+                        >
                           {user.is_blocked ? 'blocked' : 'active'}
                         </span>
                       </td>
