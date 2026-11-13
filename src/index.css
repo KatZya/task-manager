@@ -1120,18 +1120,28 @@ select {
   width: 405px;
   max-width: 100%;
   min-height: 109px;
-  background: var(--surface-muted);
+  align-self: start; /* don't stretch to the tallest neighbor in the grid row */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  border: 2px dashed var(--border);
   border-radius: var(--radius-md);
-  font-size: 30px;
+  font-size: 18px;
   font-weight: 500;
-  color: var(--text-primary);
-  text-align: left;
-  padding: 32px;
-  transition: background 0.15s ease;
+  color: var(--text-secondary);
+  padding: 24px 32px;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .add-list-card:hover {
-  background: var(--surface-hover);
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+  background: var(--surface-muted);
 }
 
 /* ---------- Empty states ---------- */
@@ -1733,9 +1743,9 @@ select {
   }
 
   .add-list-card {
-    font-size: 24px;
-    padding: 24px;
-    min-height: 88px;
+    font-size: 16px;
+    padding: 16px 24px;
+    min-height: 72px;
   }
 
   .modal-card {

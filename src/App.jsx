@@ -25,6 +25,7 @@ import {
   Shield,
   Mail,
   Paperclip,
+  Plus,
 } from 'lucide-react'
 import {
   DndContext,
@@ -1186,7 +1187,8 @@ function Dashboard({
                 />
               ))}
               <button className="add-list-card" onClick={() => setAddListOpen(true)}>
-                + Add list...
+                <Plus size={18} strokeWidth={2} aria-hidden="true" />
+                Add list…
               </button>
             </div>
           )}
