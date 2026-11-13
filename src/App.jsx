@@ -539,17 +539,6 @@ function Login() {
     }
   }
 
-  const signInWithGoogle = async () => {
-    setBusy(true)
-    setError('')
-    const { error: authError } = await supabase.auth.signInWithOAuth({ provider: 'google' })
-    if (authError) {
-      setError(authError.message)
-      setBusy(false)
-    }
-    // On success the browser redirects to Google — nothing else to do.
-  }
-
   const switchMode = (next) => {
     setMode(next)
     setError('')
@@ -659,22 +648,9 @@ function Login() {
         </p>
 
         {mode !== 'reset' && (
-          <>
-            <div className="divider">
-              <span className="divider-line" />
-              <span className="divider-text">or continue with</span>
-              <span className="divider-line" />
-            </div>
-
-            <button type="button" className="btn btn-light btn-block" onClick={signInWithGoogle} disabled={busy}>
-              <GoogleIcon />
-              Google
-            </button>
-
-            <p className="login-terms">
-              By clicking continue, you agree to our Terms of Service and Privacy Policy
-            </p>
-          </>
+          <p className="login-terms">
+            By clicking continue, you agree to our Terms of Service and Privacy Policy
+          </p>
         )}
       </form>
     </main>
@@ -757,26 +733,6 @@ function ResetPassword({ onDone }) {
         </button>
       </form>
     </main>
-  )
-}
-
-function GoogleIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path
-        fill="#4285F4"
-        d="M19.6 10.23c0-.85-.08-1.66-.22-2.45H10v4.64h5.38a5.52 5.52 0 0 1-2.4 3.62v3h3.87c2.27-2.1 3.58-5.18 3.58-8.81z"
-      />
-      <path
-        fill="#34A853"
-        d="M10 20c3.24 0 5.96-1.08 7.94-2.92l-3.87-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H-.7v3.1A11.5 11.5 0 0 0 10 20z"
-      />
-      <path fill="#FBBC05" d="M3.27 11.27a6.9 6.9 0 0 1 0-4.44v-3.1H-.7a11.5 11.5 0 0 0 0 10.64l3.97-3.1z" />
-      <path
-        fill="#EA4335"
-        d="M10 3.77c1.76 0 3.35.61 4.6 1.8l3.42-3.42C15.95.92 13.24 0 10 0 5.65 0 1.9 2.24-.7 5.73l3.97 3.1C4.22 5.88 6.87 3.77 10 3.77z"
-      />
-    </svg>
   )
 }
 
