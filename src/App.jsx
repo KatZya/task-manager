@@ -24,6 +24,7 @@ import {
   Sun,
   Shield,
   Mail,
+  Paperclip,
 } from 'lucide-react'
 import {
   DndContext,
@@ -55,6 +56,8 @@ import {
 import { getStorageDriver } from './storage'
 import { supabase } from './lib/supabaseClient'
 import AdminPanel from './AdminPanel'
+import AttachmentsSection from './AttachmentsSection'
+import { fetchAttachmentCounts } from './attachments'
 
 const UNDO_TIMEOUT = 6000
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -397,6 +400,7 @@ export default function App() {
       <Dashboard
         state={state}
         setState={setState}
+        userId={userId}
         profile={profile}
         onOpenAdmin={() => setAdminOpen(true)}
         onChangeEmail={() => setChangeEmailOpen(true)}
@@ -756,6 +760,7 @@ function ResetPassword({ onDone }) {
 function Dashboard({
   state,
   setState,
+  userId,
   profile,
   onOpenAdmin,
   onChangeEmail,
@@ -774,9 +779,23 @@ function Dashboard({
   const [priorityFilter, setPriorityFilter] = useState('any')
   const [tagFilter, setTagFilter] = useState('any')
   const [activeTask, setActiveTask] = useState(null)
+  // taskId → attachment count, for the paperclip badges in task rows
+  const [attachmentCounts, setAttachmentCounts] = useState({})
 
   const undoTimer = useRef(null)
   const focusTimer = useRef(null)
+
+  const refreshAttachmentCounts = () => {
+    fetchAttachmentCounts()
+      .then(setAttachmentCounts)
+      .catch((error) => console.warn('[attachments] counts failed', error))
+  }
+
+  // Load counts on mount and refresh whenever the details modal closes
+  // (attachments can change only while it is open).
+  useEffect(() => {
+    if (!details) refreshAttachmentCounts()
+  }, [details])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -1155,6 +1174,7 @@ function Dashboard({
                   total={item.total}
                   focused={focusedListId === item.list.id}
                   sortable={!hasFilters}
+                  attachmentCounts={attachmentCounts}
                   onToggle={toggleTask}
                   onRequestDelete={setListToDelete}
                   onAddTask={addTask}
@@ -1191,13 +1211,16 @@ function Dashboard({
           onUpdateTask={updateTask}
           onDeleteTask={deleteTask}
           onOpenDetails={openDetails}
+          attachmentCounts={attachmentCounts}
         />
       )}
 
       {detailsTask && (
         <TaskDetailsModal
           task={detailsTask}
+          userId={userId}
           onClose={() => setDetails(null)}
+          onAttachmentsChanged={refreshAttachmentCounts}
           onSave={(patch) => {
             updateTaskDetails(details.listId, details.taskId, patch)
             setDetails(null)
@@ -1565,6 +1588,7 @@ function TaskCard({
   total,
   focused,
   sortable,
+  attachmentCounts,
   onToggle,
   onRequestDelete,
   onAddTask,
@@ -1677,6 +1701,7 @@ function TaskCard({
         listId={list.id}
         tasks={tasks}
         sortable={sortable}
+        attachmentCounts={attachmentCounts}
         onToggle={onToggle}
         onUpdateTask={onUpdateTask}
         onDeleteTask={onDeleteTask}
@@ -1704,6 +1729,7 @@ function TaskItems({
   listId,
   tasks,
   sortable,
+  attachmentCounts,
   onToggle,
   onUpdateTask,
   onDeleteTask,
@@ -1723,6 +1749,7 @@ function TaskItems({
         key={task.id}
         task={task}
         listId={listId}
+        attachmentCount={attachmentCounts?.[task.id] ?? 0}
         onToggle={onToggle}
         onUpdateTask={onUpdateTask}
         onDeleteTask={onDeleteTask}
@@ -1733,6 +1760,7 @@ function TaskItems({
         key={task.id}
         task={task}
         listId={listId}
+        attachmentCount={attachmentCounts?.[task.id] ?? 0}
         onToggle={onToggle}
         onUpdateTask={onUpdateTask}
         onDeleteTask={onDeleteTask}
@@ -1792,7 +1820,16 @@ function SortableTaskRow(props) {
   return <TaskRow {...props} drag={{ attributes, listeners, setNodeRef, style, isDragging }} />
 }
 
-function TaskRow({ task, listId, onToggle, onUpdateTask, onDeleteTask, onOpenDetails, drag }) {
+function TaskRow({
+  task,
+  listId,
+  attachmentCount = 0,
+  onToggle,
+  onUpdateTask,
+  onDeleteTask,
+  onOpenDetails,
+  drag,
+}) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(task.text)
   const cancelled = useRef(false)
@@ -1859,7 +1896,7 @@ function TaskRow({ task, listId, onToggle, onUpdateTask, onDeleteTask, onOpenDet
           </button>
         )}
 
-        {!editing && <TaskMeta task={task} />}
+        {!editing && <TaskMeta task={task} attachmentCount={attachmentCount} />}
       </div>
 
       <div className="task-actions">
@@ -1900,8 +1937,8 @@ function TaskRow({ task, listId, onToggle, onUpdateTask, onDeleteTask, onOpenDet
   )
 }
 
-function TaskMeta({ task }) {
-  if (!task.due && !task.priority && task.tags.length === 0) return null
+function TaskMeta({ task, attachmentCount = 0 }) {
+  if (!task.due && !task.priority && task.tags.length === 0 && attachmentCount === 0) return null
 
   const overdue = isOverdue(task)
   const isToday = task.due === todayKey()
@@ -1929,6 +1966,15 @@ function TaskMeta({ task }) {
           #{tag}
         </span>
       ))}
+      {attachmentCount > 0 && (
+        <span
+          className="task-attachments"
+          title={`${attachmentCount} attachment${attachmentCount === 1 ? '' : 's'}`}
+        >
+          <Paperclip size={12} strokeWidth={2} aria-hidden="true" />
+          {attachmentCount}
+        </span>
+      )}
     </div>
   )
 }
@@ -2091,6 +2137,7 @@ function ListModal({
   onUpdateTask,
   onDeleteTask,
   onOpenDetails,
+  attachmentCounts,
 }) {
   const [newTask, setNewTask] = useState('')
   const dialogRef = useDialog(onClose)
@@ -2137,6 +2184,7 @@ function ListModal({
         <TaskItems
           listId={list.id}
           tasks={list.tasks}
+          attachmentCounts={attachmentCounts}
           onToggle={onToggle}
           onUpdateTask={onUpdateTask}
           onDeleteTask={onDeleteTask}
@@ -2161,7 +2209,7 @@ function ListModal({
 
 /* ---------------- TASK DETAILS MODAL ---------------- */
 
-function TaskDetailsModal({ task, onClose, onSave }) {
+function TaskDetailsModal({ task, userId, onClose, onAttachmentsChanged, onSave }) {
   const [text, setText] = useState(task.text)
   const [due, setDue] = useState(task.due ?? '')
   const [priority, setPriority] = useState(task.priority ?? 'none')
@@ -2234,6 +2282,8 @@ function TaskDetailsModal({ task, onClose, onSave }) {
             Clear
           </button>
         </div>
+
+        <AttachmentsSection taskId={task.id} userId={userId} onChanged={onAttachmentsChanged} />
 
         <div className="field">
           <span className="field-label" id="priority-label">
