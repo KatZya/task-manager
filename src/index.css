@@ -1923,6 +1923,41 @@ select {
   border-color: var(--danger-solid);
 }
 
+/* ---------- Emoji list icons ---------- */
+
+.list-emoji {
+  display: inline-block;
+  line-height: 1;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.modal-emoji-input {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  text-align: center;
+  font-size: 18px;
+  padding: 0;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.modal-emoji-input::placeholder {
+  opacity: 0.4;
+}
+
+.modal-emoji-input:focus {
+  box-shadow: 0 0 0 2px var(--blue);
+}
+
+.modal-emoji-input.modal-icon-selected {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px var(--blue);
+}
+
 /* ---------- Attachments ---------- */
 
 .attachments-grid {

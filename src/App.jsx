@@ -53,6 +53,7 @@ import {
   MAX_TAG,
   PRIORITIES,
   ICON_KEYS,
+  isEmojiIcon,
 } from './constants'
 import { getStorageDriver } from './storage'
 import { supabase } from './lib/supabaseClient'
@@ -242,6 +243,19 @@ const iconMap = {
 }
 
 const iconChoices = ICON_KEYS
+
+/** Renders a list icon: a Lucide component for built-in keys, an emoji otherwise. */
+function ListIcon({ icon, size = 18, className }) {
+  const LucideIcon = iconMap[icon]
+  if (LucideIcon) {
+    return <LucideIcon size={size} strokeWidth={2} className={className} aria-hidden="true" />
+  }
+  return (
+    <span className="list-emoji" style={{ fontSize: size }} aria-hidden="true">
+      {icon}
+    </span>
+  )
+}
 
 const systemTheme = () =>
   window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -1454,20 +1468,17 @@ function Sidebar({
         </button>
         <div className={`sidebar-menu-wrap${menuOpen ? '' : ' sidebar-menu-closed'}`}>
           <nav className="sidebar-menu-items" aria-label="Task lists">
-            {lists.map((list) => {
-              const Icon = iconMap[list.icon] ?? ListTodo
-              return (
-                <button
-                  key={list.id}
-                  className="menu-item"
-                  onClick={() => onOpenList(list.id)}
-                  title={list.title}
-                >
-                  <Icon size={20} strokeWidth={2} aria-hidden="true" />
-                  <span>{list.title}</span>
-                </button>
-              )
-            })}
+            {lists.map((list) => (
+              <button
+                key={list.id}
+                className="menu-item"
+                onClick={() => onOpenList(list.id)}
+                title={list.title}
+              >
+                <ListIcon icon={list.icon} size={20} />
+                <span>{list.title}</span>
+              </button>
+            ))}
           </nav>
         </div>
       </div>
@@ -1600,7 +1611,6 @@ function TaskCard({
   onOpenList,
   onOpenDetails,
 }) {
-  const Icon = iconMap[list.icon] ?? ListTodo
   const [isEditing, setIsEditing] = useState(false)
   const [draftTitle, setDraftTitle] = useState(list.title)
   const [newTask, setNewTask] = useState('')
@@ -1665,7 +1675,7 @@ function TaskCard({
               }}
               title="Click to rename"
             >
-              <Icon size={18} strokeWidth={2} className="task-card-title-icon" aria-hidden="true" />
+              <ListIcon icon={list.icon} size={18} className="task-card-title-icon" />
               {list.title}
             </button>
           </h3>
@@ -1987,6 +1997,7 @@ function AddListModal({ onClose, onSave }) {
   const [name, setName] = useState('')
   const [tasks, setTasks] = useState([''])
   const [icon, setIcon] = useState('list')
+  const [emojiDraft, setEmojiDraft] = useState('')
   const nameRef = useRef(null)
   const taskRefs = useRef([])
   const dialogRef = useDialog(onClose, nameRef)
@@ -2105,7 +2116,10 @@ function AddListModal({ onClose, onSave }) {
                 key={key}
                 type="button"
                 className={`modal-icon-btn${icon === key ? ' modal-icon-selected' : ''}`}
-                onClick={() => setIcon(key)}
+                onClick={() => {
+                  setIcon(key)
+                  setEmojiDraft('')
+                }}
                 aria-label={`Icon ${key}`}
                 aria-pressed={icon === key}
                 title={key}
@@ -2114,6 +2128,23 @@ function AddListModal({ onClose, onSave }) {
               </button>
             )
           })}
+          <input
+            className={`modal-emoji-input${
+              emojiDraft.trim() && icon === emojiDraft.trim() ? ' modal-icon-selected' : ''
+            }`}
+            type="text"
+            value={emojiDraft}
+            onChange={(event) => {
+              const value = event.target.value
+              setEmojiDraft(value)
+              const trimmed = value.trim()
+              if (isEmojiIcon(trimmed)) setIcon(trimmed)
+            }}
+            placeholder="😀"
+            maxLength={11}
+            aria-label="Or type an emoji"
+            title="Or type any emoji"
+          />
         </div>
 
         <div className="modal-footer">
@@ -2143,8 +2174,6 @@ function ListModal({
 }) {
   const [newTask, setNewTask] = useState('')
   const dialogRef = useDialog(onClose)
-  const Icon = iconMap[list.icon] ?? ListTodo
-
   const done = list.tasks.filter((task) => task.done).length
   const total = list.tasks.length
 
@@ -2171,7 +2200,7 @@ function ListModal({
         <div className="list-modal-header">
           <div>
             <h2 className="list-modal-title" id="list-modal-title">
-              <Icon size={22} strokeWidth={2} aria-hidden="true" />
+              <ListIcon icon={list.icon} size={22} />
               {list.title}
             </h2>
             <p className="list-modal-meta">

@@ -87,6 +87,18 @@ describe('sanitizeState', () => {
     expect(result.lists[0].tasks[0].due).toBeNull()
     expect(result.lists[0].tasks[0].priority).toBeNull()
   })
+
+  it('keeps emoji icons and built-in icon keys', () => {
+    const state = {
+      lists: [
+        { id: 'l1', title: 'Emoji', icon: '🏠', tasks: [] },
+        { id: 'l2', title: 'EmojiSeq', icon: '👨‍👩‍👧', tasks: [] },
+        { id: 'l3', title: 'BuiltIn', icon: 'music', tasks: [] },
+      ],
+    }
+    const result = sanitizeState(state, 'light')
+    expect(result.lists.map((list) => list.icon)).toEqual(['🏠', '👨‍👩‍👧', 'music'])
+  })
 })
 
 describe('localStorage driver', () => {

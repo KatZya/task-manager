@@ -7,6 +7,7 @@ import {
   MAX_TAG,
   PRIORITIES,
   ICON_KEYS,
+  isEmojiIcon,
 } from '../constants'
 
 /**
@@ -66,7 +67,10 @@ function sanitizeList(value) {
   return {
     id: typeof value.id === 'string' && value.id ? value.id : makeId(),
     title: title.slice(0, MAX_TITLE),
-    icon: ICON_KEYS.includes(value.icon) ? value.icon : 'list',
+    icon:
+      typeof value.icon === 'string' && (ICON_KEYS.includes(value.icon) || isEmojiIcon(value.icon))
+        ? value.icon.trim()
+        : 'list',
     tasks: Array.isArray(value.tasks) ? value.tasks.map(sanitizeTask).filter(Boolean) : [],
   }
 }
