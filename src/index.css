@@ -1646,15 +1646,36 @@ select {
     display: none;
   }
 
+  /* Move the account controls (avatar, Settings, …) up onto the logo row,
+     pinned to the top-right corner — easier to reach on a phone. */
+  .sidebar {
+    position: relative;
+  }
+
+  /* Reserve space so the logo never runs under the floating controls. */
+  .sidebar-top {
+    padding-right: 240px;
+  }
+
   .sidebar-footer {
-    margin-top: 16px;
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    margin-top: 0;
+  }
+
+  .sidebar-footer-actions {
+    gap: 8px;
   }
 
   /* The sidebar becomes a top bar on mobile, so popovers must open downward
-     instead of upward — otherwise they fly off the top edge of the screen. */
+     instead of upward — otherwise they fly off the top edge of the screen.
+     They also hug the right edge, because the controls live at the right. */
   .settings-popover {
     top: calc(100% + 8px);
     bottom: auto;
+    left: auto;
+    right: 0;
     max-height: 60vh;
     overflow-y: auto;
   }
