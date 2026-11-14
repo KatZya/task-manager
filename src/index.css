@@ -1655,6 +1655,22 @@ select {
   /* Reserve space so the logo never runs under the floating controls. */
   .sidebar-top {
     padding-right: 240px;
+    margin-bottom: 12px;
+  }
+
+  .sidebar-footer {
+    top: 20px;
+  }
+
+  /* Align the controls vertically with the logo baseline. */
+  .sidebar-avatar,
+  .sidebar-footer-actions .btn {
+    height: 36px;
+  }
+
+  .sidebar-avatar {
+    width: 36px;
+    font-size: 16px;
   }
 
   .sidebar-footer {
