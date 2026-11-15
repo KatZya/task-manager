@@ -26,6 +26,7 @@ import {
   Mail,
   Paperclip,
   Plus,
+  Settings as SettingsIcon,
 } from 'lucide-react'
 import {
   DndContext,
@@ -1115,7 +1116,7 @@ function Dashboard({
   const activeList = state.lists.find((list) => list.id === openListId)
   const detailsList = details ? state.lists.find((list) => list.id === details.listId) : null
   const detailsTask = detailsList?.tasks.find((task) => task.id === details.taskId)
-  const sidebarWidth = sidebarOpen ? 281 : 64
+  const sidebarWidth = sidebarOpen ? 240 : 56
 
   return (
     <div className="app" style={{ '--sidebar-width': `${sidebarWidth}px` }}>
@@ -1434,7 +1435,6 @@ function Sidebar({
   return (
     <aside className={`sidebar${open ? '' : ' sidebar-collapsed'}`}>
       <div className="sidebar-top">
-        {open && <div className="sidebar-logo">Task Manager</div>}
         <button
           className="sidebar-toggle"
           onClick={onToggle}
@@ -1443,9 +1443,9 @@ function Sidebar({
           title={open ? 'Hide sidebar' : 'Show sidebar'}
         >
           {open ? (
-            <ChevronLeft size={20} strokeWidth={2} />
+            <ChevronLeft size={18} strokeWidth={2} />
           ) : (
-            <ChevronRight size={20} strokeWidth={2} />
+            <ChevronRight size={18} strokeWidth={2} />
           )}
         </button>
       </div>
@@ -1459,12 +1459,12 @@ function Sidebar({
           title={menuOpen ? 'Hide lists' : 'Show lists'}
         >
           <ChevronDown
-            size={20}
+            size={14}
             strokeWidth={2}
             className={`menu-chevron${menuOpen ? '' : ' menu-chevron-closed'}`}
             aria-hidden="true"
           />
-          <span className="menu-header-text">TASKS LIST</span>
+          <span className="menu-header-text">Tasks list</span>
         </button>
         <div className={`sidebar-menu-wrap${menuOpen ? '' : ' sidebar-menu-closed'}`}>
           <nav className="sidebar-menu-items" aria-label="Task lists">
@@ -1475,7 +1475,7 @@ function Sidebar({
                 onClick={() => onOpenList(list.id)}
                 title={list.title}
               >
-                <ListIcon icon={list.icon} size={20} />
+                <ListIcon icon={list.icon} size={18} />
                 <span>{list.title}</span>
               </button>
             ))}
@@ -1490,15 +1490,17 @@ function Sidebar({
         <div className="sidebar-footer-actions">
           <div className="settings-wrap" ref={popoverRef}>
             <button
-              className="btn btn-blue"
+              className="sidebar-icon-btn"
               onClick={() => {
                 setSettingsOpen((value) => !value)
                 setMoreOpen(false)
               }}
               aria-expanded={settingsOpen}
               aria-haspopup="true"
+              aria-label="Settings"
+              title="Settings"
             >
-              Settings
+              <SettingsIcon size={18} strokeWidth={2} />
             </button>
             {settingsOpen && (
               <div className="settings-popover">
@@ -1548,16 +1550,17 @@ function Sidebar({
 
           <div className="settings-wrap" ref={moreRef}>
             <button
-              className="btn btn-gray btn-icon"
+              className="sidebar-icon-btn"
               aria-label="More options"
               aria-expanded={moreOpen}
               aria-haspopup="true"
+              title="More options"
               onClick={() => {
                 setMoreOpen((value) => !value)
                 setSettingsOpen(false)
               }}
             >
-              <MoreHorizontal size={20} strokeWidth={2} />
+              <MoreHorizontal size={18} strokeWidth={2} />
             </button>
             {moreOpen && (
               <div className="settings-popover more-popover">
