@@ -35,7 +35,7 @@ export function createSupabaseDriver(fallbackTheme, userId) {
   async function fetchState() {
     const { data: lists, error: listsError } = await supabase
       .from('lists')
-      .select('id, title, icon, position')
+      .select('id, title, icon, position, is_closed')
       .order('position', { ascending: true })
     if (listsError) throw listsError
 
@@ -62,6 +62,7 @@ export function createSupabaseDriver(fallbackTheme, userId) {
       id: list.id,
       title: list.title,
       icon: list.icon,
+      closed: Boolean(list.is_closed),
       tasks: tasksByList.get(list.id) ?? [],
     }))
   }
@@ -75,6 +76,7 @@ export function createSupabaseDriver(fallbackTheme, userId) {
         user_id: userId,
         title: list.title,
         icon: list.icon,
+        is_closed: Boolean(list.closed),
         position: listIndex,
       })
       if (listError) throw listError
@@ -109,6 +111,7 @@ export function createSupabaseDriver(fallbackTheme, userId) {
           user_id: userId,
           title: list.title,
           icon: list.icon,
+          is_closed: Boolean(list.closed),
           position: index,
         }))
       )

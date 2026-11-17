@@ -71,6 +71,7 @@ function sanitizeList(value) {
       typeof value.icon === 'string' && (ICON_KEYS.includes(value.icon) || isEmojiIcon(value.icon))
         ? value.icon.trim()
         : 'list',
+    closed: Boolean(value.closed),
     tasks: Array.isArray(value.tasks) ? value.tasks.map(sanitizeTask).filter(Boolean) : [],
   }
 }

@@ -472,6 +472,15 @@ select {
   color: var(--text-secondary);
 }
 
+.menu-item-closed {
+  color: var(--text-secondary);
+  opacity: 0.75;
+}
+
+.menu-item-closed:hover {
+  opacity: 1;
+}
+
 .sidebar-menu-items {
   display: flex;
   flex-direction: column;
@@ -1169,6 +1178,49 @@ select {
   border-color: var(--text-secondary);
   color: var(--text-primary);
   background: var(--surface-muted);
+}
+
+.task-card-done-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 16px 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.done-banner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: #16a34a;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.done-banner-btn:hover {
+  opacity: 0.9;
+}
+
+.list-reopen-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  margin-right: 8px;
+  font-size: 13px;
+  padding: 6px 12px;
 }
 
 /* ---------- Empty states ---------- */

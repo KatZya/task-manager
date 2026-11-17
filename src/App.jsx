@@ -27,6 +27,8 @@ import {
   Paperclip,
   Plus,
   Settings as SettingsIcon,
+  Archive,
+  ArchiveRestore,
 } from 'lucide-react'
 import {
   DndContext,
@@ -858,6 +860,7 @@ function Dashboard({
           id: makeId(),
           title: title.slice(0, MAX_TITLE),
           icon: icon ?? 'list',
+          closed: false,
           tasks: tasks.map((text) => ({
             id: makeId(),
             text,
@@ -868,6 +871,12 @@ function Dashboard({
           })),
         },
       ],
+    }))
+
+  const setListClosed = (listId, closed) =>
+    setState((s) => ({
+      ...s,
+      lists: s.lists.map((list) => (list.id === listId ? { ...list, closed } : list)),
     }))
 
   const addTask = (listId, text) => {
@@ -993,6 +1002,7 @@ function Dashboard({
     Boolean(q) || status !== 'all' || priorityFilter !== 'any' || activeTag !== 'any'
 
   const visibleLists = state.lists
+    .filter((list) => !list.closed)
     .map((list) => {
       const titleMatch = Boolean(q) && list.title.toLowerCase().includes(q)
       const tasks = list.tasks.filter((task) => {
@@ -1121,7 +1131,9 @@ function Dashboard({
   return (
     <div className="app" style={{ '--sidebar-width': `${sidebarWidth}px` }}>
       <Sidebar
-        lists={state.lists}
+        lists={state.lists.filter((list) => !list.closed)}
+        closedLists={state.lists.filter((list) => list.closed)}
+        onOpenClosed={setOpenListId}
         user={state.user}
         theme={state.theme}
         profile={profile}
@@ -1192,6 +1204,7 @@ function Dashboard({
                   sortable={!hasFilters}
                   attachmentCounts={attachmentCounts}
                   onToggle={toggleTask}
+                  onCloseList={setListClosed}
                   onRequestDelete={setListToDelete}
                   onAddTask={addTask}
                   onRename={renameList}
@@ -1223,6 +1236,10 @@ function Dashboard({
         <ListModal
           list={activeList}
           onClose={() => setOpenListId(null)}
+          onReopen={(listId) => {
+            setListClosed(listId, false)
+            setOpenListId(null)
+          }}
           onToggle={toggleTask}
           onAddTask={addTask}
           onUpdateTask={updateTask}
@@ -1387,6 +1404,8 @@ function Toolbar({
 
 function Sidebar({
   lists,
+  closedLists = [],
+  onOpenClosed,
   user,
   theme,
   profile,
@@ -1487,6 +1506,25 @@ function Sidebar({
             )}
           </nav>
         </div>
+
+        {closedLists.length > 0 && (
+          <>
+            <div className="menu-item menu-item-header menu-header-static">Closed</div>
+            <nav className="sidebar-menu-items" aria-label="Closed lists">
+              {closedLists.map((list) => (
+                <button
+                  key={list.id}
+                  className="menu-item menu-item-closed"
+                  onClick={() => onOpenClosed(list.id)}
+                  title={`${list.title} (closed — click to view)`}
+                >
+                  <ListIcon icon={list.icon} size={18} />
+                  <span>{list.title}</span>
+                </button>
+              ))}
+            </nav>
+          </>
+        )}
       </div>
 
       <div className="sidebar-footer">
@@ -1612,6 +1650,7 @@ function TaskCard({
   sortable,
   attachmentCounts,
   onToggle,
+  onCloseList,
   onRequestDelete,
   onAddTask,
   onRename,
@@ -1708,6 +1747,15 @@ function TaskCard({
           </button>
           <button
             type="button"
+            className="card-action"
+            onClick={() => onCloseList(list.id, true)}
+            aria-label={`Close ${list.title}`}
+            title="Close list (it moves to the Closed section)"
+          >
+            <Archive size={15} strokeWidth={2} />
+          </button>
+          <button
+            type="button"
             className="card-action card-action-danger"
             onClick={() => onRequestDelete(list)}
             aria-label={`Delete ${list.title}`}
@@ -1717,6 +1765,16 @@ function TaskCard({
           </button>
         </div>
       </div>
+
+      {total > 0 && done === total && (
+        <div className="task-card-done-banner" role="status">
+          <span>All tasks done — nicely finished!</span>
+          <button type="button" className="done-banner-btn" onClick={() => onCloseList(list.id, true)}>
+            <Archive size={13} strokeWidth={2} aria-hidden="true" />
+            Close list
+          </button>
+        </div>
+      )}
 
       <TaskItems
         listId={list.id}
@@ -2174,6 +2232,7 @@ function AddListModal({ onClose, onSave }) {
 function ListModal({
   list,
   onClose,
+  onReopen,
   onToggle,
   onAddTask,
   onUpdateTask,
@@ -2216,6 +2275,16 @@ function ListModal({
               {done} of {total} completed
             </p>
           </div>
+          {list.closed && (
+            <button
+              type="button"
+              className="btn btn-blue list-reopen-btn"
+              onClick={() => onReopen(list.id)}
+            >
+              <ArchiveRestore size={15} strokeWidth={2} aria-hidden="true" />
+              Reopen list
+            </button>
+          )}
           <button className="modal-close" onClick={onClose} aria-label="Close">
             <X size={20} strokeWidth={2} />
           </button>

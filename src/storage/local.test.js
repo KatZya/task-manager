@@ -15,7 +15,7 @@ const validState = {
   version: STORAGE_VERSION,
   user: 'kirill@example.com',
   theme: 'dark',
-  lists: [{ id: 'l1', title: 'Home', icon: 'home', tasks: [validTask] }],
+  lists: [{ id: 'l1', title: 'Home', icon: 'home', closed: false, tasks: [validTask] }],
 }
 
 describe('sanitizeState', () => {
@@ -98,6 +98,17 @@ describe('sanitizeState', () => {
     }
     const result = sanitizeState(state, 'light')
     expect(result.lists.map((list) => list.icon)).toEqual(['🏠', '👨‍👩‍👧', 'music'])
+  })
+
+  it('keeps the closed flag and defaults it to false', () => {
+    const state = {
+      lists: [
+        { id: 'l1', title: 'Done stuff', icon: 'home', closed: true, tasks: [] },
+        { id: 'l2', title: 'Open stuff', icon: 'home', tasks: [] },
+      ],
+    }
+    const result = sanitizeState(state, 'light')
+    expect(result.lists.map((list) => list.closed)).toEqual([true, false])
   })
 })
 
