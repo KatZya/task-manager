@@ -436,30 +436,43 @@ select {
   gap: 6px;
 }
 
-.menu-item-header:hover {
-  background: var(--surface-muted);
+/* The header is a plain label, not a collapsible button anymore. */
+.menu-header-static {
+  pointer-events: none;
 }
 
-.menu-chevron {
-  transition: transform 0.2s ease;
+.sidebar-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px;
+  margin: 6px 0 4px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-input);
+  color: var(--text-secondary);
 }
 
-.menu-chevron-closed {
-  transform: rotate(-90deg);
+.sidebar-search input {
+  border: none;
+  background: none;
+  outline: none;
+  width: 100%;
+  font-size: 13px;
+  color: var(--text-primary);
 }
 
-.sidebar-menu-wrap {
-  display: grid;
-  grid-template-rows: 1fr;
-  transition: grid-template-rows 0.25s ease;
+.sidebar-search input::placeholder {
+  color: var(--text-secondary);
 }
 
-.sidebar-menu-closed {
-  grid-template-rows: 0fr;
+.sidebar-menu-empty {
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--text-secondary);
 }
 
 .sidebar-menu-items {
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -488,10 +501,6 @@ select {
 
 .sidebar-collapsed .sidebar-footer-actions {
   display: none;
-}
-
-.menu-header-text {
-  letter-spacing: 0.06em;
 }
 
 .sidebar-footer {
@@ -1669,6 +1678,11 @@ select {
      positioning), so nothing can overlap. */
   .sidebar-top {
     display: none; /* only holds the desktop collapse toggle */
+  }
+
+  /* The list filter is a desktop-only convenience. */
+  .sidebar-search {
+    display: none;
   }
 
   .sidebar-footer {

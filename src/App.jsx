@@ -1402,11 +1402,14 @@ function Sidebar({
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(
-    () => window.matchMedia?.('(min-width: 901px)').matches ?? true
-  )
+  const [listQuery, setListQuery] = useState('')
   const popoverRef = useRef(null)
   const moreRef = useRef(null)
+
+  const listFilter = listQuery.trim().toLowerCase()
+  const filteredLists = listFilter
+    ? lists.filter((list) => list.title.toLowerCase().includes(listFilter))
+    : lists
 
   useEffect(() => {
     const close = (event) => {
@@ -1451,24 +1454,24 @@ function Sidebar({
       </div>
 
       <div className="sidebar-section">
-        <button
-          className="menu-item menu-item-header"
-          onClick={() => setMenuOpen((value) => !value)}
-          aria-expanded={menuOpen}
-          aria-label="Task lists"
-          title={menuOpen ? 'Hide lists' : 'Show lists'}
-        >
-          <ChevronDown
-            size={14}
-            strokeWidth={2}
-            className={`menu-chevron${menuOpen ? '' : ' menu-chevron-closed'}`}
-            aria-hidden="true"
-          />
-          <span className="menu-header-text">Tasks list</span>
-        </button>
-        <div className={`sidebar-menu-wrap${menuOpen ? '' : ' sidebar-menu-closed'}`}>
+        <div className="menu-item menu-item-header menu-header-static">Tasks list</div>
+
+        {open && (
+          <div className="sidebar-search">
+            <Search size={14} strokeWidth={2} aria-hidden="true" />
+            <input
+              type="search"
+              placeholder="Filter lists..."
+              value={listQuery}
+              onChange={(event) => setListQuery(event.target.value)}
+              aria-label="Filter lists"
+            />
+          </div>
+        )}
+
+        <div className="sidebar-menu-wrap">
           <nav className="sidebar-menu-items" aria-label="Task lists">
-            {lists.map((list) => (
+            {filteredLists.map((list) => (
               <button
                 key={list.id}
                 className="menu-item"
@@ -1479,6 +1482,9 @@ function Sidebar({
                 <span>{list.title}</span>
               </button>
             ))}
+            {filteredLists.length === 0 && (
+              <p className="sidebar-menu-empty">No lists match the filter</p>
+            )}
           </nav>
         </div>
       </div>
